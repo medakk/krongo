@@ -18,7 +18,7 @@ type Job interface {
 	DeleteOnRun() bool
 }
 
-// Every creates a new job that runs `f` every `t`
+// Every creates a new job that runs f every t
 func Every(t time.Duration, f func() error) Job {
 	j := repeatedJob{
 		duration: t,
@@ -28,7 +28,7 @@ func Every(t time.Duration, f func() error) Job {
 	return &j
 }
 
-// At creates a new job that runs once at time `t`.
+// At creates a new job that runs f once at time t.
 // If the time t has already passed, the job will choose to run at the
 // next tick
 func At(t time.Time, f func() error) Job {
