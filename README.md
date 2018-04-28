@@ -42,12 +42,11 @@ sched.SetErrorHandler(func(err error) {
 })
 
 // krongo.Every creates a repeating job
-job := krongo.Every(2 * time.Second, func() error {
+job := krongo.Every(time.Second, func() error {
 	_, err := http.Get("http://www.example.com")
 	if err != nil {
 		return err
 	}
-    fmt.Println("Network up")
 
 	return nil
 })
