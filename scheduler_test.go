@@ -1,19 +1,35 @@
 package krongo
 
 import (
-	"fmt"
+	"errors"
 	"testing"
 	"time"
 )
 
-func TestScheduler(t *testing.T) {
+//TODO: Create a method to mock the time values in the scheduler, so
+//that it is possible to test the actual scheduling
+
+func TestErrorHandler(t *testing.T) {
 	sched := NewScheduler()
 
-	j1 := Every(time.Second*3, func() error {
-		fmt.Println("Hey :)")
-		return nil
+	ok := false
+
+	sched.SetErrorHandler(func(err error) {
+		ok = true
 	})
 
-	sched.AddJob(j1)
-	sched.Start()
+	job := At(time.Now(), func() error {
+		return errors.New("")
+	})
+
+	sched.AddJob(job)
+	sched.SetTickerDuration(100 * time.Millisecond)
+	go sched.Start()
+
+	time.Sleep(200 * time.Millisecond)
+	sched.Stop()
+
+	if !ok {
+		t.Errorf("error handler was not invoked")
+	}
 }
