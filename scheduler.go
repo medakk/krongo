@@ -15,7 +15,7 @@ type Scheduler struct {
 }
 
 const (
-	defaultTickDuration = time.Second
+	defaultTickDuration = 500 * time.Millisecond
 )
 
 func defaultErrorHandler(error) {}
@@ -96,7 +96,7 @@ func (sched *Scheduler) Stop() {
 }
 
 // SetTickerDuration is used to set the minimum duration between which to
-// check of jobs and run them. The default is 1 second
+// check of jobs and run them. The default is 500ms
 func (sched *Scheduler) SetTickerDuration(tickDuration time.Duration) {
 	sched.mu.Lock()
 	defer sched.mu.Unlock()
