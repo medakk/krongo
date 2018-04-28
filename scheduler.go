@@ -5,12 +5,12 @@ import (
 	"time"
 )
 
+// Scheduler handles the scheduling of different jobs
 type Scheduler struct {
 	mu           *sync.Mutex
 	jobs         []Job
 	ticker       *time.Ticker
 	errorHandler func(error)
-	errorChannel chan error
 	exitChannel  chan interface{}
 }
 
@@ -26,17 +26,14 @@ func NewScheduler() *Scheduler {
 	jobs := make([]Job, 0)
 	exitChannel := make(chan interface{}, 1)
 
-	//TODO: too many errors might cause blocking on this channel
-	errorChannel := make(chan error, 1024)
-
 	s := Scheduler{
 		mu:           mu,
 		jobs:         jobs,
 		ticker:       time.NewTicker(defaultTickDuration),
 		errorHandler: defaultErrorHandler,
-		errorChannel: errorChannel,
 		exitChannel:  exitChannel,
 	}
+
 	return &s
 }
 
@@ -66,7 +63,7 @@ func (sched *Scheduler) Start() {
 					go func(t time.Time, j Job) {
 						err := j.Run(t)
 						if err != nil {
-							sched.errorChannel <- err
+							sched.errorHandler(err)
 						}
 					}(now, job)
 
@@ -91,8 +88,26 @@ func (sched *Scheduler) Start() {
 }
 
 // Stop stops the scheduler. This does not cancel any jobs that have already
-// been started, and the current tick continues to get executed
+// been started. If a tick is already in progress, the scheduler is stopped
+// at the end of the tick
 func (sched *Scheduler) Stop() {
 	sched.ticker.Stop()
 	sched.exitChannel <- nil
+}
+
+// SetTickerDuration is used to set the minimum duration between which to
+// check of jobs and run them. The default is 1 second
+func (sched *Scheduler) SetTickerDuration(tickDuration time.Duration) {
+	sched.mu.Lock()
+	defer sched.mu.Unlock()
+
+	sched.ticker = time.NewTicker(tickDuration)
+}
+
+// SetErrorHandler is used to set the function that handlers errors from jobs
+func (sched *Scheduler) SetErrorHandler(f func(error)) {
+	sched.mu.Lock()
+	defer sched.mu.Unlock()
+
+	sched.errorHandler = f
 }
