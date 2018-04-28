@@ -36,7 +36,7 @@ sched.Start()
 ```
 sched := krongo.NewScheduler()
 
-// Run this function whenever a job returns an error
+// Set the function to run whenever an error occurs
 sched.SetErrorHandler(func(err error) {
 	log.Printf("failed to run job: %v", err)
 })
