@@ -9,7 +9,7 @@ krongo uses a ticker(that defaults to ticking every 500ms, but can be configured
 ## Usage
 
 #### Basic Usage
-```
+```go
 sched := krongo.NewScheduler()
 
 // krongo.Every creates a repeating job
@@ -33,7 +33,7 @@ sched.Start()
 ```
 
 #### Create custom error handlers
-```
+```go
 sched := krongo.NewScheduler()
 
 // Set the function to run whenever an error occurs
